@@ -80,6 +80,7 @@ import Echarts1 from "../../components/echarts/pie";
 import EchartsTable from "../../components/echarts/table";
 import Echarts2 from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
+
 import {
   dzQuery,
   getRynum,
@@ -157,9 +158,11 @@ export default {
         "100以上"
       ];
       let yData = [];
-      for (const key in result.data.result) {
-        yData.push(result.data.result[key]);
-      }
+      const obj = ["0-10","11-20","21-30","31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", ">100"];
+      obj.forEach((item)=> {
+        const sum = result.data.result[item] || 0
+        yData.push(sum)
+      })
       this.$refs.ageChart.renderChart({
         name: "数量",
         xData,
@@ -236,25 +239,36 @@ export default {
         });
         legend.push(item.name);
       });
+     
       this.$refs.nationChart.renderChart({
         color: legend.length
           ? [
-              "#c23531",
-              "#2f4554",
               "#61a0a8",
-              "#d48265",
+              "#00FFFF",
+             "#d48265",
               "#91c7ae",
-              "#749f83",
-              "#ca8622",
+             "#ca8622",
+              "#546570",
+              "#c4ccd3",
+              "#FF8C00",
+              "#FF0000",
+              "#FE8463",
+               "#c23531",
+              "#2f4554",
               "#bda29a",
               "#6e7074",
-              "#546570",
-              "#c4ccd3"
+              "#749f83",
+             "#18d9ea", 
+             "#ffd200", 
+             "#8ec12a",
+              "#749f83",
+              "#FFFF00",
+            
             ]
           : "#749f83",
         name: "数量",
         data: data,
-        radius: ["40%", "50%"],
+        radius: ["50%", "60%"],
         legend: {
           orient: "vertical",
           type: "scroll",

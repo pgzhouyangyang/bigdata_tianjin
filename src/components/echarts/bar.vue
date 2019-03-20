@@ -2,6 +2,7 @@
   <div class="charts" :id="chartId" style="height:100%"></div>
 </template>
 <script>
+
 export default {
   props: {
     chartId: String
@@ -13,6 +14,9 @@ export default {
   },
   computed: {},
   methods: {
+    resize() {
+       this.myChart.resize();
+    },
     renderChart(opt = {}) {
       // 基于准备好的dom，初始化echarts实例
       this.myChart = this.$echarts.init(document.getElementById(this.chartId));
@@ -39,7 +43,10 @@ export default {
             lineStyle: {
               color: "#fff"
             }
-          }
+          },
+           axisLabel: {
+                interval:0 
+            }
         },
         yAxis: {
           type: "value",
@@ -73,9 +80,8 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myChart.setOption(option);
-      window.addEventListener("resize", () => {
-        this.myChart.resize();
-      });
+      window.removeEventListener("resize", this.resize)
+      window.addEventListener("resize", this.resize);
     }
   }
 };

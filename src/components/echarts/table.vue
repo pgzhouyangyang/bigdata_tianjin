@@ -4,7 +4,7 @@
       <table width="100%">
         <thead>
           <tr>
-            <th width="30%">行政区别</th>
+            <th width="30%">行政区划</th>
             <th width="30%">数量</th>
             <th width="50%">占比</th>
           </tr>
@@ -141,6 +141,10 @@ export default {
   }
   .el-scrollbar__bar.is-horizontal {
     display: none;
+  }
+  .el-progress {
+    text-align:left;
+    padding-left: 10px
   }
   .el-progress__text {
     color: #fff;

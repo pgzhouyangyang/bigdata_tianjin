@@ -4,22 +4,22 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-   
     {
       path: '/',
       name: 'home',
       component:() =>
       import('@/views/home/home'),
     },
+   
+    {
+      path: '/equity',
+      component: () => import('@/views/equity/equity'),
+      name: 'equity',
+    },
     {
       path: '/login',
       component: () => import('@/views/login/index'),
       name: 'login',
     },
-    {
-      path: '/equity',
-      component: () => import('@/views/equity/equity'),
-      name: 'equity',
-    }
   ]
 })
