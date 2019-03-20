@@ -1,30 +1,33 @@
 <template>
   <div class="home">
     <div class="homeTit">
-      <img src="../../assets/titPic.png" alt="">
+      <img src="../../assets/titPic.png" alt>
     </div>
     <div class="homeLeft fl">
       <div class="LeftBox">
         <h3>成员数量统计</h3>
         <div class="conEcharts">
-        <echarts1 :echarObj="echarObj" :memberData="xzqhArr"></echarts1>
-         </div>
+          <echarts1 ref="memberChart" v-show="clickNum == 0" chartId="memberChart"></echarts1>
+          <echarts-table :dataList="xzqhArr" v-show="clickNum > 0"></echarts-table>
+        </div>
       </div>
       <div class="LeftBox">
         <h3>年龄分布统计</h3>
         <div class="conEcharts">
-        <Echarts2  :xzqhCode="orgcode"></Echarts2>
-         </div>
+          <echarts2 ref="ageChart" chartId="ageChart"></echarts2>
+        </div>
       </div>
     </div>
     <div class="homeCenter fl">
       <div class="centerTop">
         <div class="dhMb">
-          <p v-for="(item,index) in dhmbArr" :key="index" @click="dhMbClick(item,index)">{{index==dhmbArr.length-1?item.name:item.name+">>"}}</p>
+          <p
+            v-for="(item,index) in dhmbArr"
+            :key="index"
+            @click="dhMbClick(item,index)"
+          >{{index==dhmbArr.length-1?item.name:item.name+">>"}}</p>
         </div>
-        <div v-show="clickNum==0" class="mapEcharts" id="myChartMap">
-
-        </div>
+        <div v-show="clickNum==0" class="mapEcharts" id="myChartMap"></div>
         <div v-show="clickNum>0" class="mapEcharts xzqhList">
           <el-scrollbar class="page-component__scroll" style="height:100%">
             <table>
@@ -42,14 +45,14 @@
                   <td>{{item.orgcode}}</td>
                   <td>{{item.orgname}}</td>
                   <td v-if="clickNum != 2">
-                    <el-button size="mini" type="primary" @click="seeClick(item)" >查看</el-button>
+                    <el-button size="mini" type="primary" @click="seeClick(item)">查看</el-button>
                   </td>
-                  
                 </tr>
-                  <tr v-if="xzqhArr && !xzqhArr.length">
-                    <td colspan="4"> <div class="empty" >暂无统计数据</div></td>
-                  
-                  </tr>
+                <tr v-if="xzqhArr && !xzqhArr.length">
+                  <td colspan="4">
+                    <div class="empty">暂无统计数据</div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </el-scrollbar>
@@ -60,54 +63,243 @@
       <div class="rightBox">
         <h3>民族分析统计</h3>
         <div class="conEcharts">
-        <echarts3  :xzqhCode="orgcode"></echarts3>
+          <echarts1 ref="nationChart" chartId="nationChart"></echarts1>
         </div>
       </div>
       <div class="rightBox">
         <h3>性别分析统计</h3>
         <div class="conEcharts">
-          <echarts4  :xzqhCode="orgcode"></echarts4>
+          <echarts1 ref="genderChart" chartId="genderChart"></echarts1>
         </div>
       </div>
-
     </div>
   </div>
 </template>
 <script>
-import Echarts1 from "./memberEcharts";
-import Echarts2 from "./ageEcharts";
-import Echarts3 from "./nationEcharts";
-import Echarts4 from "./genderEcharts";
+import Echarts1 from "../../components/echarts/pie";
+import EchartsTable from "../../components/echarts/table";
+import Echarts2 from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
-import { dzQuery, getRynum } from "@/api/homeDetail";
+import {
+  dzQuery,
+  getRynum,
+  getSexnum,
+  getNlnum,
+  getMznum
+} from "@/api/homeDetail";
 export default {
   components: {
     Echarts1,
     Echarts2,
-    Echarts3,
-    Echarts4
+    EchartsTable
   },
   data() {
     return {
       echarObj: {},
-      dhmbArr: [
-      ],
+      dhmbArr: [],
       clickNum: 0,
       xzqhArr: [],
-      orgcode: "",
+      orgcode: ""
     };
   },
-  created() {
-  },
+  created() {},
   methods: {
-     // 行政区划查询
-    xzqhQuery() {
+    init() {
+      this.ryNumEchart();
+      this.sexNumEchart();
+      this.nlNumEchart();
+      this.mzNumEchart();
+    },
+    async ryNumEchart() {
       this.xzqhArr = [];
-      getRynum({
-        orgcode:this.dhmbArr[this.clickNum].value,
-      }).then(res => {
-        let data = res.data;
-        this.xzqhArr = data.result;
+      let result = await getRynum({
+        orgcode: this.dhmbArr[this.clickNum].value
+      });
+      this.xzqhArr = result.data.result;
+      if (this.clickNum > 0) return;
+      let data = [];
+      let legend = [];
+      this.xzqhArr.forEach(item => {
+        data.push({
+          name: item.orgname,
+          value: item.sum
+        });
+        legend.push(item.orgname);
+      });
+      this.$refs.memberChart.renderChart({
+        name: "成员管理",
+        data: data,
+        legend: {
+          show: false
+        },
+        label: {
+          normal: {
+            formatter: "{b}: {c}"
+          }
+        }
+      });
+    },
+    async nlNumEchart() {
+      let result = await getNlnum({
+        orgcode: this.dhmbArr[this.clickNum].value
+      });
+      let xData = [
+        "10",
+        "20",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70",
+        "80",
+        "90",
+        "100",
+        "100以上"
+      ];
+      let yData = [];
+      for (const key in result.data.result) {
+        yData.push(result.data.result[key]);
+      }
+      this.$refs.ageChart.renderChart({
+        name: "数量",
+        xData,
+        yData,
+        formatter: function(params, ticket, callback) {
+          let interval =
+            params.name - 10 >= 0
+              ? `${params.name - 10}-${params.name}岁`
+              : "100岁以上";
+          return `<div class="hm-charts-tooltip">
+                        <div class="hm-charts-tooltip-header">
+                            <span class="hm-charts-tooltip-header-category">
+                               年龄段 ${interval}
+                            </span>
+                        </div>
+                        <div class="hm-charts-tooltip-body">
+                            <p class="hm-charts-tooltip-item">
+                                <span class="hm-charts-tooltip-item-icon" style="color:${
+                                  params.color
+                                }">
+                                ● 
+                                </span>
+                                <span class="hm-charts-tooltip-item-label">数量 ${
+                                  params.value
+                                }</span>
+                            </p>
+                        </div>
+                    </div>`;
+        }
+      });
+    },
+    async sexNumEchart() {
+      let result = await getSexnum({
+        orgcode: this.dhmbArr[this.clickNum].value
+      });
+      let legend = [];
+      let data = [];
+      for (const key in result.data.result) {
+        legend.push(key);
+        data.push({
+          name: key,
+          value: result.data.result[key]
+        });
+      }
+      this.$refs.genderChart.renderChart({
+        name: "数量",
+        data: data,
+        legend: {
+          orient: "vertical",
+          type: "scroll",
+          x: "right",
+          data: ["男", "女"],
+          textStyle: {
+            color: "#fff"
+          }
+        },
+        label: {
+          normal: {
+            formatter: "{b}: {c}"
+          }
+        }
+      });
+    },
+    async mzNumEchart() {
+      let result = await getMznum({
+        orgcode: this.dhmbArr[this.clickNum].value
+      });
+      let data = [];
+      let legend = [];
+      result.data.result.forEach(item => {
+        data.push({
+          name: item.name,
+          value: item.sum
+        });
+        legend.push(item.name);
+      });
+      this.$refs.nationChart.renderChart({
+        color: legend.length
+          ? [
+              "#c23531",
+              "#2f4554",
+              "#61a0a8",
+              "#d48265",
+              "#91c7ae",
+              "#749f83",
+              "#ca8622",
+              "#bda29a",
+              "#6e7074",
+              "#546570",
+              "#c4ccd3"
+            ]
+          : "#749f83",
+        name: "数量",
+        data: data,
+        radius: ["40%", "50%"],
+        legend: {
+          orient: "vertical",
+          type: "scroll",
+          x: "right",
+          data: legend.length ? legend : ["暂无统计数据"],
+          textStyle: {
+            color: "#fff"
+          }
+
+          // tooltip: {
+          //     show: true,
+          //     position: "top",
+          //      trigger: "item",
+          // backgroundColor: "#fff",
+          // padding: [10],
+          // textStyle: {
+          //   color: "#909399"
+          // },
+          // borderColor: "#eee",
+          // borderWidth: 1,
+          // extraCssText: "box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);",
+          //     formatter: function(params) {
+          //       const current = data.find((item)=>{
+          //         return item.name == params.name
+          //       });
+          //       console.log()
+          //       if(current) {
+          //         return params.name + " " + current.value
+
+          //       }
+          //     },
+          // }
+        },
+        label: {
+          position: "center",
+          show: false,
+          emphasis: {
+            formatter: '{b}: {c} \n {d} %',
+            show: true,
+            textStyle: {
+              fontSize: "15",
+              fontWeight: "bold",
+            }
+          }
+        }
       });
     },
     dhMbClick(item, index) {
@@ -116,12 +308,9 @@ export default {
       }
       this.clickNum = index;
       this.orgcode = item.value;
-      this.$set(this.echarObj, "clickNum", index)
-      this.$set(this.echarObj, "orgcode",item.value)
+
       this.dhmbArr.splice(index + 1);
-      // if (index > 0) {
-        this.xzqhQuery();
-      // }
+      this.init();
     },
     // 生成区划地图
     drawLine() {
@@ -169,9 +358,8 @@ export default {
           value: params.data.value
         });
         _this.orgcode = params.data.value;
-        _this.$set(_this.echarObj, "clickNum", _this.clickNum);
-        _this.$set(_this.echarObj, "orgcode", _this.orgcode);
-        _this.xzqhQuery()
+
+        _this.init();
       });
       window.addEventListener("resize", function() {
         myChartMap.resize();
@@ -179,8 +367,8 @@ export default {
     },
     // 查看行政区划
     seeClick(row) {
-      if(this.clickNum == 2) {
-        return
+      if (this.clickNum == 2) {
+        return;
       }
       this.clickNum++;
       this.dhmbArr.push({
@@ -188,9 +376,7 @@ export default {
         value: row.orgcode
       });
       this.orgcode = row.orgcode;
-      this.$set(this.echarObj, "clickNum",this.clickNum);
-      this.$set(this.echarObj, "orgcode", row.orgcode);
-      this.xzqhQuery();
+      this.init();
     },
     getCookie(c_name) {
       let c_start = "";
@@ -206,47 +392,40 @@ export default {
       }
       return "";
     },
-    dzSelect(orgcode) {
-      dzQuery({
-         orgcode
-      }).then(res => {
-        let data = res.data;
-        if (data.result && data.result.length) {
-          data.result.map(i => {
-            if (i.orglevel != 2) {
-              this.dhmbArr.push({
-                name: i.orgname,
-                value: i.orgcode
-              });
-            }
-          });
-          this.drawLine();
-          this.xzqhQuery();
-        }
-      });
+    async dzSelect(orgcode) {
+      let res = await dzQuery({ orgcode });
+      let data = res.data;
+      if (data.result && data.result.length) {
+        data.result.map(i => {
+          if (i.orglevel != 2) {
+            this.dhmbArr.push({
+              name: i.orgname,
+              value: i.orgcode
+            });
+          }
+        });
+        this.init();
+      }
     }
   },
   mounted() {
-      let clickNum = 0;
-      let orgcode = this.getCookie("orgcode");
-      if (orgcode.length == 2) {
-        clickNum = 0;
-      } else if (orgcode.length == 6) {
-        clickNum = 1;
-      } else if (orgcode.length == 9) {
-        clickNum = 2;
-      }
-      this.clickNum = clickNum;
-      this.orgcode = orgcode;
-      this.echarObj = {
-        clickNum,
-        orgcode
-      }
-      this.dzSelect(orgcode);
+    let clickNum = 0;
+    let orgcode = this.getCookie("orgcode");
+    if (orgcode.length == 2) {
+      clickNum = 0;
+    } else if (orgcode.length == 6) {
+      clickNum = 1;
+    } else if (orgcode.length == 9) {
+      clickNum = 2;
+    }
+    this.clickNum = clickNum;
+    this.orgcode = orgcode;
+    this.dzSelect(orgcode);
+    this.drawLine();
   }
 };
 </script>
 <style lang="scss" scoped>
-  @import "../../assets/style/cg.scss";
+@import "../../assets/style/cg.scss";
 </style>
 

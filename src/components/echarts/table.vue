@@ -1,64 +1,98 @@
 <template>
-    <div class="tableList-charts">
-        <el-scrollbar class="page-component__scroll" style="height:100%">
-            <table width="100%">
-            <thead>
-                <tr>
-                <th width="30%">行政区别</th>
-                <th width="30%">数量</th>
-                <th width="50%">占比</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item,index) in dataList" :key="index">
-                <td>{{item.orgname}}</td>
-                <td>{{item.sum}}</td>
-                <td>
-                    <el-progress :percentage="computedPer(item.sum)"></el-progress>
-                </td>
-                </tr>
-                <tr v-if="!dataList.length">
-                <td colspan="3">
-                    <div class="empty">暂无统计数据</div>
-                </td>
-                </tr>
-            </tbody>
-            </table>
-        </el-scrollbar>
-    </div>
+  <div class="tableList-charts">
+    <el-scrollbar class="page-component__scroll" style="height:100%">
+      <table width="100%">
+        <thead>
+          <tr>
+            <th width="30%">行政区别</th>
+            <th width="30%">数量</th>
+            <th width="50%">占比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item,index) in dataList" :key="index">
+            <td>{{item.orgname}}</td>
+            <td>{{item | count}}</td>
+            <td>
+              <el-progress :percentage="computedPer(item)"></el-progress>
+            </td>
+          </tr>
+          <tr v-if="!dataList.length">
+            <td colspan="3">
+              <div class="empty">暂无统计数据</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </el-scrollbar>
+  </div>
 </template>
 <script>
 export default {
-    props: {
-        dataList: Array
-    },
-    data() {
-        return {
-            
-        }
-    },
-    computed: {
-        total() {
-            let total = 0;
-            this.dataList.forEach(item => {
-                total += item.sum;
-            });
-            return total
-        }
-    },
-    methods: {
-        // 计算占比
-        computedPer(count) {
-            if (this.total > 0) {
-                return parseInt(count / this.total * 100);
+  props: {
+    dataList: [Array, Object]
+  },
+  data() {
+    return {};
+  },
+  computed: {
+    total() {
+      let total = 0;
+      this.dataList.forEach(item => {
+        if (typeof item.sum != "undefined") {
+          total += parseInt(item.sum);
+        } else {
+          let num = 0;
+          for (const key in item) {
+            if (typeof item[key] == "number") {
+              num += item[key];
             }
-            return 0;
-        },
+          }
+          total += parseInt(num);
+        }
+      });
+
+      return total;
     }
-}
+  },
+  filters: {
+    count(item) {
+      if (typeof item.sum != "undefined") {
+        return item.sum;
+      } else {
+        let num = 0;
+        for (const key in item) {
+          if (typeof item[key] == "number") {
+            num += item[key];
+          }
+        }
+        return num;
+      }
+    }
+  },
+  methods: {
+    // 计算占比
+    computedPer(item) {
+      if (this.total > 0) {
+        if (typeof item.sum != "undefined") {
+          return parseInt((item.sum / this.total) * 100);
+        } else {
+          let num = 0;
+          for (const key in item) {
+            if (typeof item[key] == "number") {
+              num += item[key];
+            }
+          }
+          return parseInt((num / this.total) * 100);
+        }
+      }
+      return 0;
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
-    .tableList-charts{
+.tableList-charts {
   height: 100%;
   overflow: hidden;
   position: relative;
@@ -102,14 +136,16 @@ export default {
 </style>
 <style lang="scss">
 .tableList-charts {
-     .el-scrollbar__wrap {
-        overflow-x: hidden!important;
-    }
-    .el-scrollbar__bar.is-horizontal {
-        display: none
-    }
+  .el-scrollbar__wrap {
+    overflow-x: hidden !important;
+  }
+  .el-scrollbar__bar.is-horizontal {
+    display: none;
+  }
+  .el-progress__text {
+    color: #fff;
+  }
 }
-   
 </style>
 
 

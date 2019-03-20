@@ -8,18 +8,24 @@ export default {
   },
   data() {
     return {
-       myChart: null
-    }
+      myChart: null
+    };
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    renderChart( opt = {}) {
+    renderChart(opt = {}) {
       // 基于准备好的dom，初始化echarts实例
-        this.myChart = this.$echarts.init(document.getElementById(this.chartId));
+      this.myChart = this.$echarts.init(document.getElementById(this.chartId));
       // 指定图表的配置项和数据
       var option = {
-        color: opt.color || [ "#00FFFF","#749f83","#FFFF00","#FF8C00","#FF0000","#FE8463"],
+        color: opt.color || [
+          "#00FFFF",
+          "#749f83",
+          "#FFFF00",
+          "#FF8C00",
+          "#FF0000",
+          "#FE8463"
+        ],
         tooltip: {
           trigger: "item",
           backgroundColor: "#fff",
@@ -40,15 +46,15 @@ export default {
                 <div class="hm-charts-tooltip-body">
                     <p class="hm-charts-tooltip-item">
                         <span class="hm-charts-tooltip-item-icon" style="color:${
-                            params.color
+                          params.color
                         }">
                         ● 
                         </span>
                         <span class="hm-charts-tooltip-item-label"> ${
-                            params.seriesName
+                          params.seriesName
                         }</span>
                         <span class="hm-charts-tooltip-item-value">${
-                            params.value
+                          params.value
                         }(${params.percent}%)</span>
                     </p>
                 </div>
@@ -60,23 +66,24 @@ export default {
           {
             name: opt.name,
             type: "pie",
-            radius: "60%",
+            radius: opt.radius || "60%",
             center: ["50%", "50%"],
-            data: opt.data && opt.data.length?opt.data: [{name: "暂无统计数据", value: 0}],
+            data:
+              opt.data && opt.data.length
+                ? opt.data
+                : [{ name: "暂无统计数据", value: 0 }],
             label: {
-              
-               normal: {
-                 formatter: "{b}: {c}",
-               ...opt.label
-              },
+             
+              ...opt.label
             },
+            avoidLabelOverlap: false,
             itemStyle: {
               emphasis: {
                 borderWidth: 0,
                 shadowBlur: 10,
                 shadowOffsetX: 0,
                 shadowColor: "rgba(0, 0, 0, 0.5)"
-              },
+              }
               // normal: {
               //   color: function(params) {
               //     //自定义颜色
@@ -97,10 +104,9 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myChart.setOption(option);
-      window.addEventListener("resize", ()=> {
+      window.addEventListener("resize", () => {
         this.myChart.resize();
       });
-      
     }
   }
 };
