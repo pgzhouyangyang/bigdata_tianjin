@@ -1,0 +1,115 @@
+<template>
+    <div class="tableList-charts">
+        <el-scrollbar class="page-component__scroll" style="height:100%">
+            <table width="100%">
+            <thead>
+                <tr>
+                <th width="30%">行政区别</th>
+                <th width="30%">数量</th>
+                <th width="50%">占比</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in dataList" :key="index">
+                <td>{{item.orgname}}</td>
+                <td>{{item.sum}}</td>
+                <td>
+                    <el-progress :percentage="computedPer(item.sum)"></el-progress>
+                </td>
+                </tr>
+                <tr v-if="!dataList.length">
+                <td colspan="3">
+                    <div class="empty">暂无统计数据</div>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </el-scrollbar>
+    </div>
+</template>
+<script>
+export default {
+    props: {
+        dataList: Array
+    },
+    data() {
+        return {
+            
+        }
+    },
+    computed: {
+        total() {
+            let total = 0;
+            this.dataList.forEach(item => {
+                total += item.sum;
+            });
+            return total
+        }
+    },
+    methods: {
+        // 计算占比
+        computedPer(count) {
+            if (this.total > 0) {
+                return parseInt(count / this.total * 100);
+            }
+            return 0;
+        },
+    }
+}
+</script>
+<style lang="scss" scoped>
+    .tableList-charts{
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    border-color: #5487c8;
+    padding-top: 3vh;
+    thead {
+      width: 100%;
+      tr {
+        width: 100%;
+        color: #fff;
+        background-color: #263770;
+        font-size: 0.8vw;
+      }
+    }
+    tbody {
+      tr {
+        color: #78dcfd;
+        font-size: 0.8vw;
+        height: 3vh;
+        text-align: center;
+        width: 100%;
+        table-layout: fixed;
+        font-weight: 100;
+      }
+    }
+    .tfoot {
+      color: #ffd200;
+    }
+  }
+  th,
+  td {
+    border: 1px solid #385793;
+  }
+}
+.empty {
+  padding: 10px 0;
+}
+</style>
+<style lang="scss">
+.tableList-charts {
+     .el-scrollbar__wrap {
+        overflow-x: hidden!important;
+    }
+    .el-scrollbar__bar.is-horizontal {
+        display: none
+    }
+}
+   
+</style>
+
+

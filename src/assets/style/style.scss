@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box !important;
+}
+
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+img {
+  display: inline-block;
+  height: auto;
+  max-width: 100%;
+}
+body{
+  margin: 0;
+}
+ul,
+p,h1,h2,h3,h4,h5 {
+  margin: 0;
+}
+
+ul li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+.page-component__scroll {
+  height: 100%;
+  .page-component__scroll .el-scrollbar__wrap {
+      overflow: auto;
+  }
+  .el-scrollbar__wrap {
+      overflow-x: hidden;
+  }
+}
+.el-scrollbar__thumb {
+  background-color: #73d4f7!important;
+}
