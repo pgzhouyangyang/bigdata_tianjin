@@ -14,7 +14,7 @@
       <div class="LeftBox">
         <h3>股东类型</h3>
         <div class="conEcharts">
-        <Echarts2  :xzqhCode="orgcode"></Echarts2>
+        <Echarts2  ref="gbTypeChart" chartId="gbTypeChart"></Echarts2>
          </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
       <div class="centerButtom centerButtom--charts">
           <h3>量化资产总额</h3>
           <div class="conEcharts">
-          <echarts5  :echarObj="echarObj" :xzqhCode="orgcode"></echarts5>
+          <echarts5  ref="lhzcChart" ></echarts5>
         </div>
         
       </div>
@@ -68,13 +68,13 @@
       <div class="rightBox">
         <h3>股东数量</h3>
         <div class="conEcharts">
-        <echarts3  :echarObj="echarObj" :xzqhCode="orgcode"></echarts3>
+        <echarts3  ref="gdSumChart" chartId="gdSumChart"></echarts3>
         </div>
       </div>
       <div class="rightBox">
         <h3>累计分红</h3>
         <div class="conEcharts">
-          <echarts4  :echarObj="echarObj" :xzqhCode="orgcode"></echarts4>
+          <echarts4  ref="ljfhSumChart" chartId="ljfhSumChart"></echarts4>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
 <script>
 import Echarts1 from "../../components/echarts/pie";
 import EchartsTable1 from "../../components/echarts/table";
-import Echarts2 from "../../components/echarts/bar";
+import Echarts2 from "../../components/echarts/pie";
 import EchartsTable2 from "../../components/echarts/table";
 import Echarts3 from "../../components/echarts/pie";
 import EchartsTable3 from "../../components/echarts/table";
@@ -92,7 +92,7 @@ import Echarts4 from "../../components/echarts/pie";
 import EchartsTable4 from "../../components/echarts/table";
 import Echarts5 from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
-import { dzQuery, getRynum, gfArr, getNlnum, getMznum } from "@/api/homeDetail";
+import { dzQuery, getRynum, getGfSum, getGdLx, getGdSum, getLjfhzeSum } from "@/api/homeDetail";
 export default {
   components: {
     Echarts1,
@@ -126,12 +126,13 @@ export default {
     init() {
         this.getZxqhData();
         this.gfSumEchart();
-        // this.lhzcSumEchart();
-        // this.gdTypeEchart();
-        // this.gdNumEchart();
-        // this.ljfhSumEchart();
+        this.lhzcSumEchart();
+        this.gdTypeEchart();
+        this.gdSumEchart();
+        this.ljfhSumEchart();
     },
     async getZxqhData() {
+        this.xzqhArr = []
         let result = await getRynum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
@@ -140,32 +141,31 @@ export default {
     // 股份经济合作社
     async gfSumEchart() {
         this.gfArr = [];
-        let result = await gfArr({
+        let result = await getGfSum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
         this.gfArr = result.data.result;
-        // let data = [];
-        // let legend = [];
-        //  this.gfArr.forEach(item => {
-        //     data.push({
-        //       name: item.orgname,
-        //       value: item.sum
-        //     });
-        //     legend.push(item.orgname)
-        // });
+        let data = [];
+        let legend = [];
+         this.gfArr.forEach(item => {
+            data.push({
+              name: item.orgname,
+              value: item.sum
+            });
+            legend.push(item.orgname)
+        });
         
-        // this.$refs.gfChart.renderChart( {
-        //    name: "股份经济合作社",
-        //    data: data,
-        //    legend:{
-        //      show: false
-        //    },
+        this.$refs.gfChart.renderChart( {
+           name: "股份经济合作社",
+           data: data,
+           legend:{
+             show: false
+           },
           
-        // })
+        })
     },
     // 量化资产
     async lhzcSumEchart() {
-        
          let result = await getNlnum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
@@ -200,7 +200,7 @@ export default {
     },
     // 股东类型
     async gdTypeEchart() {
-        let result = await getSexnum({
+        let result = await getGdLx({
             orgcode: this.dhmbArr[this.clickNum].value
         });
         let legend = [];
@@ -212,38 +212,38 @@ export default {
             value: result.data.result[key]
           })
         }
-        this.$refs.genderChart.renderChart( {
-           name: "数量",
+        this.$refs.gbTypeChart.renderChart( {
+           name: "股东数量",
            data: data,
            legend:{
-             orient: "vertical",
-          type: 'scroll',
-            x: "right",
-            data: ["男", "女"],
-            textStyle: {
-              color: "#fff"
-            }
-           }
+              orient: "vertical",
+              type: 'scroll',
+                x: "right",
+                data: legend,
+                textStyle: {
+                  color: "#fff"
+                }
+              }
         })
     },
     // 股东数量
-    async gdNumEchart() {
-       let result = await getMznum({
+    async gdSumEchart() {
+       let result = await getGdSum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
         let data = [];
         let legend = [];
         result.data.result.forEach(item => {
             data.push({
-              name: item.name,
-              value: item.sum
+              name: item.orgname,
+              value: item["个人股东"]  + item["集体股东"]
             });
-            legend.push(item.name)
+            legend.push(item.orgname)
         });
-        this.$refs.nationChart.renderChart( {
-           color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
-           name: "数量",
-           data:  data.length?data: [{name: "暂无统计数据", value: 0}],
+        this.$refs.gdSumChart.renderChart( {
+          //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
+           name: "股东数量",
+           data: data,
            legend:{
                 orient: "vertical",
                 type: 'scroll',
@@ -261,22 +261,22 @@ export default {
     },
     // 累计分红总额
     async ljfhSumEchart() {
-       let result = await getMznum({
+       let result = await getLjfhzeSum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
         let data = [];
         let legend = [];
         result.data.result.forEach(item => {
             data.push({
-              name: item.name,
+              name: item.orgname,
               value: item.sum
             });
-            legend.push(item.name)
+            legend.push(item.orgname)
         });
-        this.$refs.nationChart.renderChart( {
-           color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
-           name: "数量",
-           data:  data.length?data: [{name: "暂无统计数据", value: 0}],
+        this.$refs.ljfhSumChart.renderChart( {
+          //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
+           name: "累计分红",
+           data:  data,
            legend:{
                 orient: "vertical",
                 type: 'scroll',

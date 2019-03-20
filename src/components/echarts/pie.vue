@@ -62,7 +62,7 @@ export default {
             type: "pie",
             radius: "60%",
             center: ["50%", "50%"],
-            data: opt.data,
+            data: opt.data && opt.data.length?opt.data: [{name: "暂无统计数据", value: 0}],
             label: {
               
                normal: {

@@ -61,7 +61,6 @@
                   title: '登陆成功！',
                   message: data.username
                 });
-                this.$router.replace("/home")
               }
             }).catch(error => {
                 this.$notify.error({

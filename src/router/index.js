@@ -18,7 +18,7 @@ export default new Router({
     },
     {
       path: '/equity',
-      component: () => import('@/views/equity/equity1'),
+      component: () => import('@/views/equity/equity'),
       name: 'equity',
     }
   ]
