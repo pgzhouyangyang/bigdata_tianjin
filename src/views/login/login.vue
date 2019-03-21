@@ -17,7 +17,7 @@
 </template>
 
 <script>
-  import {Login} from '@/api/login'
+  import {Login} from '@/api/getData'
   import {setTokenForLogin} from "@/utils/auth";
 
   export default {

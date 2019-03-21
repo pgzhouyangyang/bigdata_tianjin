@@ -69,7 +69,7 @@
       <div class="rightBox">
         <h3>性别分析统计</h3>
         <div class="conEcharts">
-          <echarts-bar ref="genderChart" chartId="genderChart"></echarts-bar>
+          <echarts-pie ref="genderChart" chartId="genderChart"></echarts-pie>
         </div>
       </div>
     </div>
@@ -80,7 +80,7 @@ import EchartsPie from "../../components/echarts/pie";
 import EchartsBar from "../../components/echarts/bar";
 import EchartsTable from "../../components/echarts/table";
 import tianjJs from "../../../static/tianj";
-import {dzQuery, getRynum, getSexnum, getNlnum, getMznum} from "@/api/homeDetail";
+import {dzQuery, getRynum, getSexnum, getNlnum, getMznum} from "@/api/getData";
 export default {
   data() {
     return {

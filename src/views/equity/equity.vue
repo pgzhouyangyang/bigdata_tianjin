@@ -89,7 +89,7 @@ import EchartsPie from "../../components/echarts/pie";
 import EchartsTable from "../../components/echarts/table";
 import EchartsBar from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
-import { dzQuery, getRynum, getGfSum, getGdLx, getGdSum, getLjfhzeSum, getLhzczeSum } from "@/api/homeDetail";
+import { dzQuery, getRynum, getGfSum, getGdLx, getGdSum, getLjfhzeSum, getLhzczeSum } from "@/api/getData";
 export default {
   data() {
     return {
