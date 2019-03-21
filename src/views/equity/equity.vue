@@ -98,9 +98,7 @@ export default {
   },
   data() {
     return {
-      echarObj: {},
-      dhmbArr: [
-      ],
+      dhmbArr: [],
       clickNum: 0,
       orgcode: "",
       xzqhArr: [], // 行政区划列表

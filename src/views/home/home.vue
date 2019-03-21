@@ -96,7 +96,6 @@ export default {
   },
   data() {
     return {
-      echarObj: {},
       dhmbArr: [],
       clickNum: 0,
       xzqhArr: [],
