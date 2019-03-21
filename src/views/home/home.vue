@@ -346,7 +346,7 @@ export default {
       let arr = [];
       dataArr.features.map(i => {
         arr.push({ name: i.properties.name, value: i.id });
-      });
+	  });
       var mapOption = {
         geo: {
           map: "tianj"

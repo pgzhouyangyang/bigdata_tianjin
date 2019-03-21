@@ -48,7 +48,7 @@ export default {
               num += item[key];
             }
           }
-          total += parseInt(num);
+          total += num;
         }
       });
       return total;
@@ -73,8 +73,9 @@ export default {
     // 计算占比
     computedPer(item) {
       if (this.total > 0) {
+        let p = 0;
         if (typeof item.sum != "undefined") {
-          return parseInt((item.sum / this.total) * 100);
+          p = item.sum / this.total;
         } else {
           let num = 0;
           for (const key in item) {
@@ -82,8 +83,12 @@ export default {
               num += item[key];
             }
           }
-          return parseInt((num / this.total) * 100);
+          p = num / this.total;
         }
+        // 如果是小数就保留一位
+        p = Math.round(p * 1000)/10;
+
+        
       }
       return 0;
     }

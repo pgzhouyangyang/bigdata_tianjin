@@ -155,7 +155,7 @@ export default {
         if(this.clickNum>0)return;
         let data = [];
         let legend = [];
-         this.gfArr.forEach(item => {
+        this.gfArr.forEach(item => {
             data.push({
               name: item.orgname,
               value: item.sum
