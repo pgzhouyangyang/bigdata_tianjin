@@ -4,7 +4,10 @@
 <script>
 export default {
   props: {
-    chartId: String
+    chartId: {
+      type: String,
+      default: "charts"
+    }
   },
   data() {
     return {
@@ -20,7 +23,6 @@ export default {
       // 基于准备好的dom，初始化echarts实例
       this.myChart = this.$echarts.init(document.getElementById(this.chartId));
       // 指定图表的配置项和数据
-      console.log()
       var option = {
         color: opt.color && opt.color.length?opt.color : [
           "#00FFFF",
@@ -108,7 +110,7 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myChart.setOption(option);
-      window.removeEventListener("resize", this.resize)
+      window.removeEventListener("resize", this.resize);
       window.addEventListener("resize", this.resize);
     }
   }

@@ -7,14 +7,14 @@
       <div class="LeftBox">
         <h3>成员数量统计</h3>
         <div class="conEcharts">
-          <echarts1 ref="memberChart" v-show="clickNum == 0" chartId="memberChart"></echarts1>
+          <echarts-pie ref="memberChart" v-show="clickNum == 0" chartId="memberChart"></echarts-pie>
           <echarts-table :dataList="xzqhArr" v-show="clickNum > 0"></echarts-table>
         </div>
       </div>
       <div class="LeftBox">
         <h3>年龄分布统计</h3>
         <div class="conEcharts">
-          <echarts2 ref="ageChart" chartId="ageChart"></echarts2>
+          <echarts-bar ref="ageChart" chartId="ageChart"></echarts-bar>
         </div>
       </div>
     </div>
@@ -63,37 +63,25 @@
       <div class="rightBox">
         <h3>民族分析统计</h3>
         <div class="conEcharts">
-          <echarts1 ref="nationChart" chartId="nationChart"></echarts1>
+          <echarts-pie ref="nationChart" chartId="nationChart"></echarts-pie>
         </div>
       </div>
       <div class="rightBox">
         <h3>性别分析统计</h3>
         <div class="conEcharts">
-          <echarts1 ref="genderChart" chartId="genderChart"></echarts1>
+          <echarts-bar ref="genderChart" chartId="genderChart"></echarts-bar>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import Echarts1 from "../../components/echarts/pie";
+import EchartsPie from "../../components/echarts/pie";
+import EchartsBar from "../../components/echarts/bar";
 import EchartsTable from "../../components/echarts/table";
-import Echarts2 from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
-
-import {
-  dzQuery,
-  getRynum,
-  getSexnum,
-  getNlnum,
-  getMznum
-} from "@/api/homeDetail";
+import {dzQuery, getRynum, getSexnum, getNlnum, getMznum} from "@/api/homeDetail";
 export default {
-  components: {
-    Echarts1,
-    Echarts2,
-    EchartsTable
-  },
   data() {
     return {
       dhmbArr: [],
@@ -103,7 +91,28 @@ export default {
     };
   },
   created() {
-    document.title = "成员管理大数据指挥仓"
+    document.title = "天津成果管理系统 - 成员管理大数据指挥仓";
+  },
+  mounted() {
+    // 根据cookie orgcode判断账户类型
+    let clickNum = 0;
+    let orgcode = this.getCookie("orgcode");
+    if (orgcode.length == 2) {
+      clickNum = 0;
+    } else if (orgcode.length == 6) {
+      clickNum = 1;
+    } else if (orgcode.length == 9) {
+      clickNum = 2;
+    }
+    this.clickNum = clickNum;
+    this.orgcode = orgcode;
+    this.dzSelect(orgcode);
+    this.drawLine();
+  },
+  components: {
+    EchartsPie,
+    EchartsBar,
+    EchartsTable
   },
   methods: {
     init() {
@@ -153,7 +162,7 @@ export default {
       obj.forEach((item)=> {
         const sum = result.data.result[item] || 0
         yData.push(sum)
-      })
+      });
       this.$refs.ageChart.renderChart({
         name: "数量",
         xData,
@@ -174,7 +183,7 @@ export default {
                                 ● 
                                 </span>
                                 <span class="hm-charts-tooltip-item-label">数量 ${
-                                  params[0].value
+                                  params[0].value 
                                 }</span>
                             </p>
                         </div>
@@ -195,7 +204,7 @@ export default {
           name: key,
           value: result.data.result[key]
         });
-      }
+      };
       this.$refs.genderChart.renderChart({
         name: "数量",
         data: data,
@@ -229,7 +238,6 @@ export default {
         });
         legend.push(item.name);
       });
-     
       this.$refs.nationChart.renderChart({
         color: legend.length //   ['#acb96f', '#e7be71', '#869588', '#98d186', '#c84a76', '#2a89bc', '#a6c19a', '#abc37b', '#ef7d7d']
           ? [
@@ -306,6 +314,21 @@ export default {
         }
       });
     },
+    async dzSelect(orgcode) {
+      let res = await dzQuery({ orgcode });
+      let data = res.data;
+      if (data.result && data.result.length) {
+        data.result.map(i => {
+          if (i.orglevel != 2) {
+            this.dhmbArr.push({
+              name: i.orgname,
+              value: i.orgcode
+            });
+          }
+        });
+        this.init();
+      }
+    },
     dhMbClick(item, index) {
       if (item.value.length < this.getCookie("orgcode").length) {
         return;
@@ -362,7 +385,6 @@ export default {
           value: params.data.value
         });
         _this.orgcode = params.data.value;
-
         _this.init();
       });
       window.addEventListener("resize", function() {
@@ -395,38 +417,7 @@ export default {
         }
       }
       return "";
-    },
-    async dzSelect(orgcode) {
-      let res = await dzQuery({ orgcode });
-      let data = res.data;
-      if (data.result && data.result.length) {
-        data.result.map(i => {
-          if (i.orglevel != 2) {
-            this.dhmbArr.push({
-              name: i.orgname,
-              value: i.orgcode
-            });
-          }
-        });
-        this.init();
-      }
     }
-  },
-  mounted() {
-    // 根据cookie判断账户级别
-    let clickNum = 0;
-    let orgcode = this.getCookie("orgcode");
-    if (orgcode.length == 2) {
-      clickNum = 0;
-    } else if (orgcode.length == 6) {
-      clickNum = 1;
-    } else if (orgcode.length == 9) {
-      clickNum = 2;
-    }
-    this.clickNum = clickNum;
-    this.orgcode = orgcode;
-    this.dzSelect(orgcode);
-    this.drawLine();
   }
 };
 </script>

@@ -5,7 +5,10 @@
 
 export default {
   props: {
-    chartId: String
+    chartId: {
+      type: String,
+      default: "charts"
+    }
   },
   data() {
     return {
@@ -22,9 +25,12 @@ export default {
       this.myChart = this.$echarts.init(document.getElementById(this.chartId));
       // 指定图表的配置项和数据
       var option = {
+        grid: {
+            top:20
+        },
         tooltip: {
           // trigger: "item",
-            trigger: 'axis',
+          trigger: 'axis',
           axisPointer: { // 坐标轴指示器，坐标轴触发有效
               type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
           },
@@ -84,7 +90,7 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myChart.setOption(option);
-      window.removeEventListener("resize", this.resize)
+      window.removeEventListener("resize", this.resize);
       window.addEventListener("resize", this.resize);
     }
   }

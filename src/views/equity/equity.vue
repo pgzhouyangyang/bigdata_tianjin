@@ -7,14 +7,14 @@
       <div class="LeftBox">
         <h3>股份经济合作社统计</h3>
         <div class="conEcharts">
-            <echarts ref="gfChart" v-show="clickNum == 0" chartId="gfChart"></echarts>
+            <echarts-pie ref="gfChart" v-show="clickNum == 0" chartId="gfChart"></echarts-pie>
             <echarts-table :dataList="gfArr" v-show="clickNum > 0"></echarts-table>
          </div>
       </div>
       <div class="LeftBox">
         <h3>股东类型统计</h3>
         <div class="conEcharts">
-        <echarts ref="gbTypeChart" chartId="gbTypeChart"></echarts>
+        <echarts-pie ref="gbTypeChart" chartId="gbTypeChart"></echarts-pie>
          </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
       <div class="centerButtom centerButtom--charts">
           <h3>量化资产总额统计</h3>
           <div class="conEcharts">
-          <echarts2  ref="lhzcChart" chartId="lhzcChart" v-show="clickNum == 0"></echarts2>
+          <echarts-bar ref="lhzcChart" chartId="lhzcChart" v-show="clickNum == 0"></echarts-bar>
           <echarts-table :dataList="lhzcArr" v-show="clickNum > 0"></echarts-table>
         </div>
         
@@ -69,14 +69,14 @@
       <div class="rightBox">
         <h3>股东数量统计</h3>
         <div class="conEcharts">
-        <echarts  ref="gdSumChart" chartId="gdSumChart" v-show="clickNum == 0"></echarts>
+        <echarts-pie ref="gdSumChart" chartId="gdSumChart" v-show="clickNum == 0"></echarts-pie>
          <echarts-table :dataList="gdSumArr" v-show="clickNum > 0"></echarts-table>
         </div>
       </div>
       <div class="rightBox">
         <h3>累计分红总额统计</h3>
         <div class="conEcharts">
-          <echarts  ref="ljfhSumChart" chartId="ljfhSumChart" v-show="clickNum == 0"></echarts>
+          <echarts-pie ref="ljfhSumChart" chartId="ljfhSumChart" v-show="clickNum == 0"></echarts-pie>
            <echarts-table :dataList="ljfhArr" v-show="clickNum > 0"></echarts-table>
         </div>
       </div>
@@ -85,17 +85,12 @@
   </div>
 </template>
 <script>
-import Echarts from "../../components/echarts/pie";
+import EchartsPie from "../../components/echarts/pie";
 import EchartsTable from "../../components/echarts/table";
-import Echarts2 from "../../components/echarts/bar";
+import EchartsBar from "../../components/echarts/bar";
 import tianjJs from "../../../static/tianj";
 import { dzQuery, getRynum, getGfSum, getGdLx, getGdSum, getLjfhzeSum, getLhzczeSum } from "@/api/homeDetail";
 export default {
-  components: {
-    Echarts,
-    Echarts2,
-    EchartsTable
-  },
   data() {
     return {
       dhmbArr: [],
@@ -110,7 +105,28 @@ export default {
     };
   },
   created() {
-    document.title = "股权管理大数据指挥仓"
+    document.title = "天津成果管理系统 - 股权管理大数据指挥仓"
+  },
+  mounted() {
+      // 根据cookie orgcode判断账户类型
+      let clickNum = 0;
+      let orgcode = this.getCookie("orgcode");
+      if (orgcode.length == 2) {
+        clickNum = 0;
+      } else if (orgcode.length == 6) {
+        clickNum = 1;
+      } else if (orgcode.length == 9) {
+        clickNum = 2;
+      }
+      this.clickNum = clickNum;
+      this.orgcode = orgcode;
+      this.dzSelect(orgcode);
+      this.drawLine();
+  },
+  components: {
+    EchartsPie,
+    EchartsBar,
+    EchartsTable
   },
   methods: {
     init() {
@@ -121,8 +137,9 @@ export default {
         this.gdSumEchart();
         this.ljfhSumEchart();
     },
+    // 获取行政区划
     async getZxqhData() {
-        this.xzqhArr = []
+        this.xzqhArr = [];
         let result = await getRynum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
@@ -130,7 +147,6 @@ export default {
     },
     // 股份经济合作社
     async gfSumEchart() {
-        
         this.gfArr = [];
         let result = await getGfSum({
             orgcode: this.dhmbArr[this.clickNum].value
@@ -146,38 +162,34 @@ export default {
             });
             legend.push(item.orgname)
         });
-        
         this.$refs.gfChart.renderChart( {
-           name: "股份经济合作社",
-           data: data,
-           legend:{
+          name: "股份经济合作社",
+          data: data,
+          legend:{
              show: false
-           },
-            label: {
-           normal: {
+          },
+          label: {
+            normal: {
                 formatter: "{b}: {c}"
-              }
-        }
-          
+            }
+          }
         })
     },
     // 量化资产
     async lhzcSumEchart() {
-        this.lhzcArr = []
+        this.lhzcArr = [];
         // 获取数据
         let result = await getLhzczeSum({
             orgcode: this.dhmbArr[this.clickNum].value
         });
-       
         this.lhzcArr = result.data.result;
-        if(this.clickNum>0)return;
-
+        if(this.clickNum>0) return;
         let xData = [];
         let yData = [];
         result.data.result.forEach((item)=> {
             xData.push(item.orgname);
             yData.push(item.sum)
-        })
+        });
         // 创建图表
         this.$refs.lhzcChart.renderChart( {
           name: "量化资产",
@@ -215,7 +227,7 @@ export default {
             name: key,
             value: result.data.result[key]
           })
-        }
+        };
         this.$refs.gbTypeChart.renderChart( {
            name: "股东数量",
            data: data,
@@ -237,76 +249,90 @@ export default {
     },
     // 股东数量
     async gdSumEchart() {
-        this.gdSumArr = []
-       let result = await getGdSum({
-            orgcode: this.dhmbArr[this.clickNum].value
-        });
-        this.gdSumArr = result.data.result;
-        if(this.clickNum>0)return;
-        let data = [];
-        let legend = [];
+      this.gdSumArr = [];
+      let result = await getGdSum({
+          orgcode: this.dhmbArr[this.clickNum].value
+      });
+      this.gdSumArr = result.data.result;
+      if(this.clickNum>0)return;
+      let data = [];
+      let legend = [];
+      result.data.result.forEach(item => {
+          data.push({
+            name: item.orgname,
+            value: item["个人股东"]  + item["集体股东"]
+          });
+          legend.push(item.orgname)
+      });
+      this.$refs.gdSumChart.renderChart( {
+        //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
+          name: "股东数量",
+          data: data,
+          legend:{
+              orient: "vertical",
+              type: 'scroll',
+              x: "right",
+              data: legend.length?legend: ["暂无统计数据"],
+              textStyle: {
+                color: "#fff"
+              }
+          },
+          label: {
+            show: false,
+          },
         
-        result.data.result.forEach(item => {
-            data.push({
-              name: item.orgname,
-              value: item["个人股东"]  + item["集体股东"]
-            });
-            legend.push(item.orgname)
-        });
-        this.$refs.gdSumChart.renderChart( {
-          //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
-           name: "股东数量",
-           data: data,
-           legend:{
-                orient: "vertical",
-                type: 'scroll',
-                x: "right",
-                data: legend.length?legend: ["暂无统计数据"],
-                textStyle: {
-                  color: "#fff"
-                }
-           },
-            label: {
-              show: false,
-           },
-          
-        })
+      })
     },
     // 累计分红总额
     async ljfhSumEchart() {
-        this.ljfhArr = [];
-       let result = await getLjfhzeSum({
-            orgcode: this.dhmbArr[this.clickNum].value
-        });
-         this.ljfhArr = result.data.result;
-          if(this.clickNum>0)return;
-        let data = [];
-        let legend = [];
-        result.data.result.forEach(item => {
-            data.push({
-              name: item.orgname,
-              value: item.sum
-            });
-            legend.push(item.orgname)
-        });
-        this.$refs.ljfhSumChart.renderChart( {
-          //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
-           name: "累计分红",
-           data:  data,
-           legend:{
-                orient: "vertical",
-                type: 'scroll',
-                x: "right",
-                data: legend.length?legend: ["暂无统计数据"],
-                textStyle: {
-                  color: "#fff"
-                }
-           },
-            label: {
-              show: false,
-           },
-          
-        })
+      this.ljfhArr = [];
+      let result = await getLjfhzeSum({
+          orgcode: this.dhmbArr[this.clickNum].value
+      });
+      this.ljfhArr = result.data.result;
+      if(this.clickNum>0)return;
+      let data = [];
+      let legend = [];
+      result.data.result.forEach(item => {
+          data.push({
+            name: item.orgname,
+            value: item.sum
+          });
+          legend.push(item.orgname)
+      });
+      this.$refs.ljfhSumChart.renderChart( {
+        //  color: legend.length?['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']:'#749f83',
+          name: "累计分红",
+          data:  data,
+          legend:{
+              orient: "vertical",
+              type: 'scroll',
+              x: "right",
+              data: legend.length?legend: ["暂无统计数据"],
+              textStyle: {
+                color: "#fff"
+              }
+          },
+          label: {
+            show: false,
+          },
+        
+      })
+    },
+    async dzSelect(orgcode) {
+        let res =  await dzQuery({orgcode});
+        let data = res.data;
+        if (data.result && data.result.length) {
+          data.result.map(i => {
+            if (i.orglevel != 2) {
+              this.dhmbArr.push({
+                name: i.orgname,
+                value: i.orgcode
+              });
+            }
+          });
+          this.init();
+        }
     },
     dhMbClick(item, index) {
       if (item.value.length < this.getCookie("orgcode").length) {
@@ -314,7 +340,6 @@ export default {
       }
       this.clickNum = index;
       this.orgcode = item.value;
-     
       this.dhmbArr.splice(index + 1);
       this.init()
     },
@@ -364,8 +389,7 @@ export default {
           value: params.data.value
         });
         _this.orgcode = params.data.value;
-        
-        _this.init()
+        _this.init();
       });
       window.addEventListener("resize", function() {
         myChartMap.resize();
@@ -374,15 +398,15 @@ export default {
     // 查看行政区划
     seeClick(row) {
       if(this.clickNum == 2) {
-        return
-      }
+        return;
+      };
       this.clickNum++;
       this.dhmbArr.push({
         name: row.orgname,
         value: row.orgcode
       });
       this.orgcode = row.orgcode;
-     this.init()
+      this.init()
     },
     getCookie(c_name) {
       let c_start = "";
@@ -397,38 +421,9 @@ export default {
         }
       }
       return "";
-    },
-    async dzSelect(orgcode) {
-        let res =  await dzQuery({orgcode});
-        let data = res.data;
-        if (data.result && data.result.length) {
-          data.result.map(i => {
-            if (i.orglevel != 2) {
-              this.dhmbArr.push({
-                name: i.orgname,
-                value: i.orgcode
-              });
-            }
-          });
-          this.init()
-        }
     }
-  },
-  mounted() {
-      let clickNum = 0;
-      let orgcode = this.getCookie("orgcode");
-      if (orgcode.length == 2) {
-        clickNum = 0;
-      } else if (orgcode.length == 6) {
-        clickNum = 1;
-      } else if (orgcode.length == 9) {
-        clickNum = 2;
-      }
-      this.clickNum = clickNum;
-      this.orgcode = orgcode;
-      this.dzSelect(orgcode);
-      this.drawLine()
   }
+ 
 };
 </script>
 <style lang="scss" scoped>
