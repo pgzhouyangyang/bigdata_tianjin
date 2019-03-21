@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-
+import "babel-polyfill"
 // import ElementUI from 'element-ui';
 // 按需引入element组件
 import {

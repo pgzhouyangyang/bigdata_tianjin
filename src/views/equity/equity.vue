@@ -5,14 +5,14 @@
     </div>
     <div class="homeLeft fl">
       <div class="LeftBox">
-        <h3>股份经济合作社</h3>
+        <h3>股份经济合作社统计</h3>
         <div class="conEcharts">
             <echarts ref="gfChart" v-show="clickNum == 0" chartId="gfChart"></echarts>
             <echarts-table :dataList="gfArr" v-show="clickNum > 0"></echarts-table>
          </div>
       </div>
       <div class="LeftBox">
-        <h3>股东类型</h3>
+        <h3>股东类型统计</h3>
         <div class="conEcharts">
         <echarts ref="gbTypeChart" chartId="gbTypeChart"></echarts>
          </div>
@@ -57,7 +57,7 @@
         </div>
       </div>
       <div class="centerButtom centerButtom--charts">
-          <h3>量化资产总额</h3>
+          <h3>量化资产总额统计</h3>
           <div class="conEcharts">
           <echarts2  ref="lhzcChart" chartId="lhzcChart" v-show="clickNum == 0"></echarts2>
           <echarts-table :dataList="lhzcArr" v-show="clickNum > 0"></echarts-table>
@@ -67,14 +67,14 @@
     </div>
     <div class="homeRight fl">
       <div class="rightBox">
-        <h3>股东数量</h3>
+        <h3>股东数量统计</h3>
         <div class="conEcharts">
         <echarts  ref="gdSumChart" chartId="gdSumChart" v-show="clickNum == 0"></echarts>
          <echarts-table :dataList="gdSumArr" v-show="clickNum > 0"></echarts-table>
         </div>
       </div>
       <div class="rightBox">
-        <h3>累计分红</h3>
+        <h3>累计分红总额统计</h3>
         <div class="conEcharts">
           <echarts  ref="ljfhSumChart" chartId="ljfhSumChart" v-show="clickNum == 0"></echarts>
            <echarts-table :dataList="ljfhArr" v-show="clickNum > 0"></echarts-table>
@@ -110,6 +110,7 @@ export default {
     };
   },
   created() {
+    document.title = "股权管理大数据指挥仓"
   },
   methods: {
     init() {
@@ -186,15 +187,15 @@ export default {
           return  `<div class="hm-charts-tooltip">
                       <div class="hm-charts-tooltip-header">
                           <span class="hm-charts-tooltip-header-category">
-                              ${params.name}
+                              ${params[0].name}
                           </span>
                       </div>
                       <div class="hm-charts-tooltip-body">
                           <p class="hm-charts-tooltip-item">
-                              <span class="hm-charts-tooltip-item-icon" style="color:${params.color}">
+                              <span class="hm-charts-tooltip-item-icon" style="color:${params[0].color}">
                               ● 
                               </span>
-                              <span class="hm-charts-tooltip-item-label">量化资产总额 ${params.value}</span>
+                              <span class="hm-charts-tooltip-item-label">量化资产总额 ${params[0].value}</span>
                           </p>
                       </div>
                   </div>`

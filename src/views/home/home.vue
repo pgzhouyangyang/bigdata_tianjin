@@ -102,7 +102,9 @@ export default {
       orgcode: ""
     };
   },
-  created() {},
+  created() {
+    document.title = "成员管理大数据指挥仓"
+  },
   methods: {
     init() {
       this.ryNumEchart();
@@ -110,6 +112,7 @@ export default {
       this.nlNumEchart();
       this.mzNumEchart();
     },
+    // 成员分析
     async ryNumEchart() {
       this.xzqhArr = [];
       let result = await getRynum({
@@ -139,23 +142,12 @@ export default {
         }
       });
     },
+    // 年龄统计
     async nlNumEchart() {
       let result = await getNlnum({
         orgcode: this.dhmbArr[this.clickNum].value
       });
-      let xData = [
-        "10",
-        "20",
-        "30",
-        "40",
-        "50",
-        "60",
-        "70",
-        "80",
-        "90",
-        "100",
-        "100以上"
-      ];
+      let xData = ["10","20", "30", "40", "50","60", "70", "80","90","100","100以上"];
       let yData = [];
       const obj = ["0-10","11-20","21-30","31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", ">100"];
       obj.forEach((item)=> {
@@ -167,10 +159,7 @@ export default {
         xData,
         yData,
         formatter: function(params, ticket, callback) {
-          let interval =
-            params.name - 10 >= 0
-              ? `${params.name - 10}-${params.name}岁`
-              : "100岁以上";
+          let interval = params[0].name - 10 >= 0 ? `${params[0].name - 10}-${params[0].name}岁` : "100岁以上";
           return `<div class="hm-charts-tooltip">
                         <div class="hm-charts-tooltip-header">
                             <span class="hm-charts-tooltip-header-category">
@@ -180,12 +169,12 @@ export default {
                         <div class="hm-charts-tooltip-body">
                             <p class="hm-charts-tooltip-item">
                                 <span class="hm-charts-tooltip-item-icon" style="color:${
-                                  params.color
+                                  params[0].color
                                 }">
                                 ● 
                                 </span>
                                 <span class="hm-charts-tooltip-item-label">数量 ${
-                                  params.value
+                                  params[0].value
                                 }</span>
                             </p>
                         </div>
@@ -193,6 +182,7 @@ export default {
         }
       });
     },
+    // 性别统计
     async sexNumEchart() {
       let result = await getSexnum({
         orgcode: this.dhmbArr[this.clickNum].value
@@ -225,6 +215,7 @@ export default {
         }
       });
     },
+    // 民族统计
     async mzNumEchart() {
       let result = await getMznum({
         orgcode: this.dhmbArr[this.clickNum].value
@@ -240,7 +231,7 @@ export default {
       });
      
       this.$refs.nationChart.renderChart({
-        color: legend.length
+        color: legend.length //   ['#acb96f', '#e7be71', '#869588', '#98d186', '#c84a76', '#2a89bc', '#a6c19a', '#abc37b', '#ef7d7d']
           ? [
               "#61a0a8",
               "#00FFFF",
@@ -422,6 +413,7 @@ export default {
     }
   },
   mounted() {
+    // 根据cookie判断账户级别
     let clickNum = 0;
     let orgcode = this.getCookie("orgcode");
     if (orgcode.length == 2) {
