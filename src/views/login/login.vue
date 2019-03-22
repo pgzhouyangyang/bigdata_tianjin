@@ -47,7 +47,10 @@
         this.$refs['login-form'].validate((valid) => {
           if (valid) {
             // do submit
-            Login(this.loginForm).then(response => {
+            Login( {
+              account: this.loginForm.password,
+              pwwd: this.loginForm.username
+            }).then(response => {
               this.loading = false;
               const data = response.data
               if (data.errcode) {
